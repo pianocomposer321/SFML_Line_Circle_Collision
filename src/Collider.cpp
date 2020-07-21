@@ -1,3 +1,5 @@
+#define PI 3.141592653589793
+
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -56,27 +58,40 @@ bool Collider::lineCircle(float circle_radius, float circle_x, float circle_y, f
 
     // Cosine Rule:
     // A^2 + B^2 - 2AB cos theta = C^2
-    // cos theta = C^2 - A^2 - B^2 + 2AB
-    // theta = acos(C^2 - A^2 - B^2 + 2AB)
+    // -2AB cos theta = C^2 - A^2 - B^2
+    // cos theta = (C^2 - A^2 - B^2)/-2AB
+    // theta = acos(C^2 - A^2 - B^2)/-2AB
 
     double a_squared = pow(distance_a, 2);
     double b_squared = pow(distance_b, 2);
     double c_squared = pow(distance_c, 2);
 
-    /* double theta = sqrt(std::acos(a_squared - b_squared + (2 * distance_a * distance_b))); */
-    double theta = std::acos(c_squared - a_squared - b_squared + (2 * distance_a * distance_b));
-
     // sin theta = D / A
     // D = A * sin theta
+    double angle_a = std::acos((c_squared - a_squared - b_squared) /
+                               (-2 * distance_a * distance_b));
 
-    double distance_d = distance_a * std::sin(theta);
 
-    if (distance_d < circle_radius)
+    double distance_d = distance_a * std::sin(angle_a);
+
+    double temp = distance_a;
+    distance_a = distance_b;
+    distance_b = distance_c;
+    distance_c = temp;
+
+    a_squared = pow(distance_a, 2);
+    b_squared = pow(distance_b, 2);
+    c_squared = pow(distance_c, 2);
+
+    double angle_b = std::acos((c_squared - a_squared - b_squared) /
+                                           (-2 * distance_a * distance_b));
+
+    double angle_a_degrees = angle_a * 180 / PI;
+    double angle_b_degrees = angle_b * 180 / PI;
+
+    if (distance_d < circle_radius && angle_a_degrees < 90 && angle_b_degrees < 90)
         return true;
 
-    else
-        std::cout << distance_d << std::endl;
-        std::cout << theta << std::endl;
     return false;
 }
 
